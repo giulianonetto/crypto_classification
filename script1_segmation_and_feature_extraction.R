@@ -16,6 +16,7 @@ filelist = apply(filesdf, 1, function(x) {
   list("img" = x[1], "path" = x[2])
 })
 
+saveRDS(filelist, "filelist.RDS")
 cores = 3
 cl = makeCluster(cores)
 registerDoParallel(cl)
