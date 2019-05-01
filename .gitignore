@@ -37,7 +37,7 @@ rsconnect/
 
 # big RDS files (usually intermediate, no real input)
 
-*.RDS
+.RDS
 
 # 'Rplots' are usually non-wanted plots
 Rplots.*
