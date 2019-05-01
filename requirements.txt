@@ -1,0 +1,9 @@
+# required R packages
+caret
+caTools
+doParallel
+EBImage
+ggfortify
+ggpubr
+reshape2
+tidyverse
