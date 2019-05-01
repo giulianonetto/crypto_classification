@@ -67,7 +67,7 @@ theme_set(theme_pubclean(base_size = 16))
 # load data
 testset = read.csv("modelImages/preprocessed/testing_set.tsv", 
                    sep = "\t", header = TRUE)
-trainset = read.csv("modelImages/preprocessed/train_set.tsv", 
+trainset = read.csv("modelImages/preprocessed/training_set.tsv", 
                     sep = "\t", header = TRUE)
 
 fit = readRDS("tuning_fit_random_forest.RDS") # it has all caret's objects
