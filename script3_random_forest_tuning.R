@@ -44,18 +44,24 @@ write.table(testset,
 rf_ctrl = trainControl(classProbs = TRUE,
                        savePredictions = TRUE,
                        summaryFunction = multiClassSummary)
-rf_grid = expand.grid(minNode = c(2:10),
+rf_grid = expand.grid(minNode = c(2:15, 20),
                       predFixed = c(4:20))
 
 print(str_glue("Tuning Random Forest classifier parameters - this may take awhile..."))
+
 # WARNING: takes forever!!
-set.seed(5996)
-fit_rf = caret::train(Type ~ ., data = trainset,
-                      method = "Rborist",
-                      tuneGrid = rf_grid,
-                      trControl = rf_ctrl,
-                      nTree = 500)
-saveRDS(fit_rf, "tuning_fit_random_forest.RDS")
+if (!file.exists("tuning_fit_random_forest.RDS")) {
+  set.seed(5996)
+  fit_rf = caret::train(Type ~ ., data = trainset,
+                        method = "Rborist",
+                        tuneGrid = rf_grid,
+                        trControl = rf_ctrl,
+                        nTree = 500)
+  saveRDS(fit_rf, "tuning_fit_random_forest.RDS")
+} else {
+  fit_rf = readRDS("tuning_fit_random_forest.RDS")
+}
+
 print(str_glue("Done with model tuning!"))
 
 best_predFixed = fit_rf$best$predFixed
@@ -67,7 +73,7 @@ print(str_glue("Best minimum node size: {best_minNode}"))
 print(str_glue("Classifier's top overall accuracy: {round(accuracy, 2)} %"))
 
 # build tuning plot
-tunning_plot_rf = ggplot(fit_rf, highlight = TRUE) +
+tuning_plot_rf = ggplot(fit_rf, highlight = TRUE) +
   ggtitle("Random Forest - Training Accuracy (nTree = 500)") +
   theme(plot.title = element_text(hjust = 0.475, face = "bold"),
         axis.title = element_text(face = "bold"),
@@ -77,14 +83,14 @@ tunning_plot_rf = ggplot(fit_rf, highlight = TRUE) +
   scale_color_manual(values = 1:9)
 
 # update plot's scale and annotations
-tunning_plot_rf$data$Accuracy = tunning_plot_rf$data$Accuracy * 100
-big = max(tunning_plot_rf$data$Accuracy) %>% round(2)
-small = min(tunning_plot_rf$data$Accuracy) 
+tuning_plot_rf$data$Accuracy = tuning_plot_rf$data$Accuracy * 100
+big = max(tuning_plot_rf$data$Accuracy) %>% round(2)
+small = min(tuning_plot_rf$data$Accuracy) 
 plot_text = str_glue("{best_minNode} Nodes Minimum
                      {best_predFixed} Randomly Selected Predictors
                      Highest Training Accuracy = {big} %")
-tunning_plot_rf$labels$y = str_glue("{tunning_plot_rf$labels$y} %")
-tunning_plot_rf = tunning_plot_rf + 
+tuning_plot_rf$labels$y = str_glue("{tuning_plot_rf$labels$y} %")
+tuning_plot_rf = tuning_plot_rf + 
   ylim(small, big*1.005) +
   geom_hline(yintercept = big, linetype = "longdash", color = "gray40") +
   annotate("text", x = 10, y = big * 1.002, hjust = 0,
@@ -92,6 +98,6 @@ tunning_plot_rf = tunning_plot_rf +
            label = plot_text)
 
 # save plot
-plot_path = "modelImages/plots/fig2_tunning_random_forest.png"
+plot_path = "modelImages/plots/fig2_tuning_random_forest.png"
 print(str_glue("Saving tuning plot in:\n {plot_path}"))
-ggsave(plot_path, tunning_plot_rf, width = 7.5, height = 5)
+ggsave(plot_path, tuning_plot_rf, width = 7.5, height = 5)
