@@ -37,8 +37,15 @@ rsconnect/
 
 # big RDS files (usually intermediate, no real input)
 
-.RDS
+*.RDS
+
+# intermediate output files
+
+features_all_labeled.tsv
+testing_set.tsv
+training_set.tsv
+modelImages/preprocessed/**/*.tif
 
 # 'Rplots' are usually non-wanted plots
-Rplots.*
+Rplots.pdf
 

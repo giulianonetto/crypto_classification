@@ -64,7 +64,7 @@ accuracy = max(fit_rf$results$Accuracy) * 100
 
 print(str_glue("Best number of randomly selected predictors: {best_predFixed}"))
 print(str_glue("Best minimum node size: {best_minNode}"))
-print(str_glue("Classifier's top overall accuracy: {accuracy} %"))
+print(str_glue("Classifier's top overall accuracy: {round(accuracy, 2)} %"))
 
 # build tuning plot
 tunning_plot_rf = ggplot(fit_rf, highlight = TRUE) +
@@ -94,5 +94,4 @@ tunning_plot_rf = tunning_plot_rf +
 # save plot
 plot_path = "modelImages/plots/fig2_tunning_random_forest.png"
 print(str_glue("Saving tuning plot in:\n {plot_path}"))
-ggsave(plot_path, 
-       tunning_plot_rf, width = 7.5, height = 5)
+ggsave(plot_path, tunning_plot_rf, width = 7.5, height = 5)
