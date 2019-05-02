@@ -22,6 +22,8 @@ trainset = df[split,]
 testset = df[!split,]
 test_cell_ids = testset$Cell
 train_cell_ids = trainset$Cell
+idslist = list("test_ids" = test_cell_ids, "train_ids" = train_cell_ids)
+saveRDS(idslist, "cell_ids.RDS")
 trainset$Cell = NULL
 testset$Cell = NULL
 normParams = preProcess(trainset, 
