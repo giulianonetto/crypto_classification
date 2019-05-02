@@ -4,6 +4,7 @@ suppressPackageStartupMessages({
     library(tidyverse)
     library(ggpubr)
     library(reshape2)
+    library(EBImage)
   })
 })
 # define functions
@@ -72,7 +73,7 @@ trainset = read.csv("modelImages/preprocessed/training_set.tsv",
 
 fit = readRDS("tuning_fit_random_forest.RDS") # it has all caret's objects
 
-print("Making class predictions...")
+print(str_glue("Making class predictions..."))
 
 # make predictions
 preds = predict(fit, testset[, colnames(testset) != "Type"])
@@ -80,7 +81,7 @@ conf_mat_rf = confusionMatrix(preds, testset$Type)
 
 # Plot final metrics
 
-print("Building performance plot...")
+print(str_glue("Building performance plot..."))
 
 csum = data.frame(pred = preds,
                   obs = testset$Type) %>% 
@@ -95,7 +96,7 @@ ggsave(plot_path, conf_plot, width = 12, height = 5)
 
 # Confusion Matrix heatmap
 
-print("Building Confusion Matrix heatmaps...")
+print(str_glue("Building Confusion Matrix heatmaps..."))
 
 
 ordered_levels = c("unidentified", "spiky",
@@ -158,7 +159,7 @@ ggsave(str_glue("{plots_dir}/fig4b_confusion_matrix_proportional.png"),
 
 # Draw predictions on original images (testset-derived cells only)
 
-print("Drawing predictions on original images (testset-derived cells only)...")
+print(str_glue("Drawing predictions on original images (testset-derived cells only)..."))
 
 filelist = readRDS("filelist.RDS")
 df_bkp = readRDS("df_bkp.RDS")
@@ -212,4 +213,4 @@ for (i in filelist) {
   }
 }
 
-print("Done!")
+print(str_glue("Done!"))
