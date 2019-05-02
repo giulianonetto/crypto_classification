@@ -70,7 +70,7 @@ testset = read.csv("modelImages/preprocessed/testing_set.tsv",
                    sep = "\t", header = TRUE)
 trainset = read.csv("modelImages/preprocessed/training_set.tsv", 
                     sep = "\t", header = TRUE)
-
+big.list = readRDS("big.list.RDS")
 fit = readRDS("tuning_fit_random_forest.RDS") # it has all caret's objects
 
 print(str_glue("Making class predictions..."))
