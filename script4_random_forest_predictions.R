@@ -152,9 +152,9 @@ plots_dir = "modelImages/plots"
 ggsave(str_glue("{plots_dir}/fig4_confusion_matrices.png"),
        cmats_arranged, width = 14, height = 6)
 ggsave(str_glue("{plots_dir}/fig4a_confusion_matrix_absolute.png"),
-       cmat_heatmap_absolute, width = 14, height = 6)
+       cmat_heatmap_absolute, width = 7.5, height = 6)
 ggsave(str_glue("{plots_dir}/fig4b_confusion_matrix_proportional.png"),
-       cmat_heatmap_proportions, width = 14, height = 6)
+       cmat_heatmap_proportions, width = 7.5, height = 6)
 
 
 # Draw predictions on original images (testset-derived cells only)
