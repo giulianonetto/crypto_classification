@@ -46,7 +46,7 @@ write.table(testset,
 rf_ctrl = trainControl(classProbs = TRUE,
                        savePredictions = TRUE,
                        summaryFunction = multiClassSummary)
-rf_grid = expand.grid(minNode = c(2:15, 20),
+rf_grid = expand.grid(minNode = c(2:10),
                       predFixed = c(4:20))
 
 print(str_glue("Tuning Random Forest classifier parameters - this may take awhile..."))
