@@ -49,3 +49,5 @@ modelImages/preprocessed/**/*.tif
 # 'Rplots' are usually non-wanted plots
 Rplots.pdf
 
+# folder with random documents
+docs
