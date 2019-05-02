@@ -43,6 +43,7 @@ saveRDS(feats_list, "feats_list.RDS")
 df = plyr::ldply(feats_list, rbind)
 df$Cell = paste0("Cell", rownames(df))
 df_bkp = df
+saveRDS(df_bkp, "df_bkp.RDS")
 df = df[, -2]
 props =  EBImage::computeFeatures(big.list[[1]]$cells[,,1], 
                                   big.list[[1]]$img[,,1],
