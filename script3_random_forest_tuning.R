@@ -43,10 +43,14 @@ write.table(testset,
             col.names = T)
 
 # Model tuning
-rf_ctrl = trainControl(classProbs = TRUE,
+rf_ctrl = trainControl(method = "repeatedcv",
+		       number = 10,
+                       ## repeated ten times
+                       repeats = 10,
+		       classProbs = TRUE,
                        savePredictions = TRUE,
                        summaryFunction = multiClassSummary)
-rf_grid = expand.grid(minNode = c(2:10),
+rf_grid = expand.grid(minNode = c(1:10),
                       predFixed = c(4:20))
 
 print(str_glue("Tuning Random Forest classifier parameters - this may take awhile..."))
@@ -58,7 +62,7 @@ if (!file.exists("tuning_fit_random_forest.RDS")) {
                         method = "Rborist",
                         tuneGrid = rf_grid,
                         trControl = rf_ctrl,
-                        nTree = 500)
+                        nTree = 2000)
   saveRDS(fit_rf, "tuning_fit_random_forest.RDS")
 } else {
   fit_rf = readRDS("tuning_fit_random_forest.RDS")
@@ -81,8 +85,8 @@ tuning_plot_rf = ggplot(fit_rf, highlight = TRUE) +
         axis.title = element_text(face = "bold"),
         legend.title = element_text(hjust = 0, face = "bold")) +
   labs(color = "Minimum\nNode Size", shape = "Minimum\nNode Size") +
-  scale_shape_manual(values = 1:9) + 
-  scale_color_manual(values = 1:9)
+  scale_shape_manual(values = 1:10) + 
+  scale_color_manual(values = 1:10)
 
 # update plot's scale and annotations
 tuning_plot_rf$data$Accuracy = tuning_plot_rf$data$Accuracy * 100
