@@ -46,7 +46,7 @@ write.table(testset,
 rf_ctrl = trainControl(method = "repeatedcv",
 		       number = 10,
                        ## repeated ten times
-                       repeats = 10,
+                       repeats = 5,
 		       classProbs = TRUE,
                        savePredictions = TRUE,
                        summaryFunction = multiClassSummary)
@@ -62,7 +62,8 @@ if (!file.exists("tuning_fit_random_forest.RDS")) {
                         method = "Rborist",
                         tuneGrid = rf_grid,
                         trControl = rf_ctrl,
-                        nTree = 2000)
+                        nTree = 2000,
+                        nthread = 4)
   saveRDS(fit_rf, "tuning_fit_random_forest.RDS")
 } else {
   fit_rf = readRDS("tuning_fit_random_forest.RDS")
