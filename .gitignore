@@ -35,9 +35,6 @@ vignettes/*.pdf
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
 
-# big RDS files (usually intermediate, no real input)
-
-*.RDS
 
 # intermediate output files
 
