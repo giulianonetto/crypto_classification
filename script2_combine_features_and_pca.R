@@ -73,6 +73,7 @@ write.table(df,
 print(str_glue("Plotting Principal Component Analysis..."))
 
 pca = prcomp(df[, -c(1,2, ncol(df))], scale = T)
+
 p1 = ggplot2::autoplot(pca, data = df, 
                        colour = "Type", size = 3) +
   theme(plot.title = element_text(hjust = 0.475, face = "bold"),
@@ -100,9 +101,16 @@ if (!dir.exists(plots_dir)) {
   dir.create(plots_dir)
 }
 
-pca_plot_path = str_glue("{plots_dir}/fig1_pca.png")
+pca_plot_path = str_glue("{plots_dir}/fig1_pca.jpeg")
 print(str_glue("Saved PCA plot at: \n {pca_plot_path}"))
 ggsave(pca_plot_path, pcaplot, width = 16, height = 5.5)
 
 # Run below for interactive, 3D visualization
 #plotly::plot_ly(data.frame(pca$x), x = ~PC1, y = ~PC2, z = ~PC3, color = df$Type)
+
+# PERMANOVA only with labeled cells
+cell_types = c("bald", "regular", "spiky")
+distance_matrix = dist(df[df$Type %in% cell_types, -c(1,2, ncol(df))])
+metadata = data.frame("Type" = df[df$Type %in% cell_types, "Type"])
+permanova = vegan::adonis(distance_matrix ~ Type, data = metadata)
+saveRDS(permanova, "permanova_test.RDS")

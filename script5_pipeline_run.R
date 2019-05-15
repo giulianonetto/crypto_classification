@@ -119,7 +119,7 @@ big.list = foreach(i = filelist,
                      dir.create(processed_files_path)
                      # Generate labelled image
                      {
-                       png(str_glue("{processed_files_path}/labels.png"),
+                       jpeg(str_glue("{processed_files_path}/labels.jpeg"),
                            res = 300, width = 1024, height = 724)
                        EBImage::display(colorLabels(cells), method = "raster")
                        text(x = feats$x.0.m.cx, y = feats$x.0.m.cy, 
@@ -128,7 +128,7 @@ big.list = foreach(i = filelist,
                      }
                      
                      {
-                       png(str_glue("{processed_files_path}/labels_painted_objects.png"),
+                       jpeg(str_glue("{processed_files_path}/labels_painted_objects.jpeg"),
                            res = 300, width = 1024, height = 724)
                        display(paintObjects(cells,
                                             EBImage::toRGB(img), thick = T,
@@ -214,7 +214,7 @@ for (i in filelist) {
   # Generate labelled image
   text_labels = as.character(subset_loc$predictions)
   {
-    png(str_glue("{files_path}/Img_{img_numb}_predictions.png"),
+    jpeg(str_glue("{files_path}/Img_{img_numb}_predictions.jpeg"),
         res = 300, width = 1024, height = 724)
     display(paintObjects(big.list[[img_numb]]$cells,
                          EBImage::toRGB(big.list[[img_numb]]$img), 

@@ -87,7 +87,8 @@ tuning_plot_rf = ggplot(fit_rf, highlight = TRUE) +
         legend.title = element_text(hjust = 0, face = "bold")) +
   labs(color = "Minimum\nNode Size", shape = "Minimum\nNode Size") +
   scale_shape_manual(values = 1:10) + 
-  scale_color_manual(values = 1:10)
+  scale_color_manual(values = 1:10) +
+  labs(y = "Accuracy (Repeated CV)")
 
 # update plot's scale and annotations
 tuning_plot_rf$data$Accuracy = tuning_plot_rf$data$Accuracy * 100
@@ -98,13 +99,13 @@ plot_text = str_glue("{best_minNode} Nodes Minimum
                      Highest Training Accuracy = {big} %")
 tuning_plot_rf$labels$y = str_glue("{tuning_plot_rf$labels$y} %")
 tuning_plot_rf = tuning_plot_rf + 
-  ylim(small, big*1.005) +
+  ylim(small, big*1.006) +
   geom_hline(yintercept = big, linetype = "longdash", color = "gray40") +
-  annotate("text", x = 10, y = big * 1.002, hjust = 0,
+  annotate("text", x = 10, y = big * 1.0025, hjust = 0,
            fontface = "bold", color = "gray10",
            label = plot_text)
 
 # save plot
-plot_path = "modelImages/plots/fig2_tuning_random_forest.png"
+plot_path = "modelImages/plots/fig2_tuning_random_forest.jpeg"
 print(str_glue("Saving tuning plot in:\n {plot_path}"))
 ggsave(plot_path, tuning_plot_rf, width = 7.5, height = 5)

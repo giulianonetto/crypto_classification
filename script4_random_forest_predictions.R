@@ -22,7 +22,7 @@ plot_performance <- function(confmat,
   mean_params = map(to_include, function(param) {
     x = str_replace(param, " ", "_")
     y = str_glue("Mean_{x}")
-    y = round(classSummary[[y]] * 100, 1)
+    y = round(classSummary[[y]] * 100)
     lab = str_glue("{param}\n(mean = {y} %)")
     return(lab)
   })
@@ -78,6 +78,10 @@ print(str_glue("Making class predictions..."))
 # make predictions
 preds = predict(fit, testset[, colnames(testset) != "Type"])
 conf_mat_rf = confusionMatrix(preds, testset$Type)
+preds_probs = predict(fit, testset[, colnames(testset) != "Type"], 
+                      type = "prob")
+saveRDS(preds_probs, "predicted_probabilities.RDS")
+saveRDS(preds, "predicted_classes.RDS")
 
 # Plot final metrics
 
@@ -90,7 +94,7 @@ csum = data.frame(pred = preds,
 
 conf_plot = plot_performance(confmat = conf_mat_rf, 
                              classSummary = csum) 
-plot_path = "modelImages/plots/fig3_predictive_performance.png"
+plot_path = "modelImages/plots/fig3_predictive_performance.jpeg"
 ggsave(plot_path, conf_plot, width = 12, height = 5)
 
 
@@ -115,8 +119,8 @@ cmat_heatmap_absolute = confusion_dataframe %>%
   geom_text(aes(label = sprintf("%1.0f", Freq)),
             color = "white", vjust = 0.5) +
   scale_fill_gradient(low = "#00275D", high = "#D70000",
-                      limits = c(0, 65),
-                      breaks = seq(0, 60, 20)) +
+                      limits = c(0, 70),
+                      breaks = c(5, 20, 35, 50, 65)) +
   labs(fill = "Numbers\nof cells") +
   theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 20),
         axis.title = element_text(size = 18, face = "bold", vjust = 0.5),
@@ -149,11 +153,11 @@ cmats_arranged = ggarrange(cmat_heatmap_absolute,
                            cmat_heatmap_proportions, 
                            ncol = 2)
 plots_dir = "modelImages/plots"
-ggsave(str_glue("{plots_dir}/fig4_confusion_matrices.png"),
+ggsave(str_glue("{plots_dir}/fig4_confusion_matrices.jpeg"),
        cmats_arranged, width = 14, height = 6)
-ggsave(str_glue("{plots_dir}/fig4a_confusion_matrix_absolute.png"),
+ggsave(str_glue("{plots_dir}/fig4a_confusion_matrix_absolute.jpeg"),
        cmat_heatmap_absolute, width = 7.5, height = 6)
-ggsave(str_glue("{plots_dir}/fig4b_confusion_matrix_proportional.png"),
+ggsave(str_glue("{plots_dir}/fig4b_confusion_matrix_proportional.jpeg"),
        cmat_heatmap_proportions, width = 7.5, height = 6)
 
 
@@ -195,7 +199,7 @@ for (i in filelist) {
                        as.character(subset_loc$predictions),
                        str_glue("{subset_loc$predictions} ({subset_loc$Type})"))
   {
-    png(str_glue("{files_path}/Img_{img_numb}_predictions.png"),
+    jpeg(str_glue("{files_path}/Img_{img_numb}_predictions.jpeg"),
         res = 300, width = 1024, height = 724)
     display(paintObjects(big.list[[img_numb]]$cells[,,1],
                          EBImage::toRGB(big.list[[img_numb]]$img[,,1]), thick = T,
