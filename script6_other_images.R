@@ -47,17 +47,23 @@ imp_plot = importance(fit_rf, type = 2) %>%
   data.frame() %>%
   mutate(feature = str_replace(rownames(.), "x.a.", "intensity - ")) %>%
   mutate(feature = str_replace(feature, "x.0.", "binary - ")) %>%
-  mutate(feature = str_replace(feature, "x.Ba.", "top hat - ")) %>%
+  mutate(feature = str_replace(feature, "x.Ba.", "top hat - "),
+         type = str_extract(feature, " \\- b| \\- m|^h| \\- s")) %>%
+  mutate(type = factor(type, labels = c("Basic", "Moment", 
+                                        "Shape", "Haralick"))) %>%
   arrange(-desc(MeanDecreaseGini)) %>%
   mutate(feature = factor(feature, levels = unique(feature))) %>%
   ggplot(aes(feature, MeanDecreaseGini)) +
-  geom_col(fill = "#00A84C", col = "gray40") +
+  geom_col(aes(fill = type), col = "gray20") +
   coord_flip() +
   theme(axis.text.y = element_text(size = 10, face = "bold"),
         axis.title = element_text(face = "bold")) +
-  labs(x = "Features", y = "Mean Decrease Gini")
+  labs(x = "Features", y = "Mean Decrease Gini",
+       fill = NULL) +
+  scale_fill_manual(values = c("#00A84C", "#2572A1",
+                               "#A12525", "#8C4F02"))
 ggsave("modelImages/plots/fig8_variable_importance.jpeg",
-       imp_plot, width = 6, height = 9)
+       imp_plot, width = 7, height = 9)
 
 # Supp Fig 1 - [proximity plot]
 rf_prox = cmdscale(1 - fit_rf$proximity) %>%
