@@ -43,7 +43,7 @@ fit_rf = randomForest(trainset[,-1],
                       keep.forest = T)
 
 # Fig 7
-imp_plot = importance(fit_rf, type = 2) %>% 
+imp_df = importance(fit_rf, type = 2) %>% 
   data.frame() %>%
   mutate(feature = str_replace(rownames(.), "x.a.", "intensity - ")) %>%
   mutate(feature = str_replace(feature, "x.0.", "binary - ")) %>%
@@ -52,7 +52,9 @@ imp_plot = importance(fit_rf, type = 2) %>%
   mutate(type = factor(type, labels = c("Basic", "Moment", 
                                         "Shape", "Haralick"))) %>%
   arrange(-desc(MeanDecreaseGini)) %>%
-  mutate(feature = factor(feature, levels = unique(feature))) %>%
+  mutate(feature = factor(feature, levels = unique(feature)))
+
+imp_plot = imp_df %>%
   ggplot(aes(feature, MeanDecreaseGini)) +
   geom_col(aes(fill = type), col = "gray20") +
   coord_flip() +
@@ -78,4 +80,17 @@ prox_plot = rf_prox %>%
 plotpath = "modelImages/plots/supp_fig1_proximity_plot.jpeg"
 ggsave(plotpath, prox_plot, width = 7, height = 5.5)
 
+# Supp Fig2 - top 5 features correlations
 
+top_5_features = rev(levels(imp_df$feature))[1:5] %>%
+  str_replace("intensity - ", "x.a.") %>%
+  str_replace("binary - ", "x.0.") %>%
+  str_replace("top hat - ", "x.Ba.")
+
+top_5_feat_cor_plot = GGally::ggpairs(trainset, 
+                                      columns = top_10_features,
+                                      mapping = aes(colour = Type,
+                                                    alpha = .5)) +
+  theme(strip.text = element_text(face = "bold", size = 12))
+ggsave("modelImages/plots/supp_fig2_top_5_feats_correlations.jpeg",
+       top_5_feat_cor_plot, width = 12, height = 9)
