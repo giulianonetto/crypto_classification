@@ -79,7 +79,9 @@ p1 = ggplot2::autoplot(pca, data = df,
   theme(plot.title = element_text(hjust = 0.475, face = "bold"),
         text = element_text(size = 18),
         axis.title = element_text(face = "bold"),
-        legend.title = element_text(hjust = 0, face = "bold")) +
+        legend.text = element_text(size = 18, face = 'bold'),
+        legend.title = element_text(hjust = 0, 
+                                    face = "bold")) +
   labs(color = NULL) +
   ggtitle("Front View") +
   scale_color_brewer(type = "qual",palette = 6)
@@ -89,6 +91,7 @@ p2 = ggplot2::autoplot(pca,x = 1, y = 3, data = df,
   theme(plot.title = element_text(hjust = 0.475, face = "bold"),
         text = element_text(size = 18),
         axis.title = element_text(face = "bold"),
+        legend.text = element_text(size = 18, face = 'bold'),
         legend.title = element_text(hjust = 0, face = "bold")) +
   labs(color = NULL) +
   ggtitle("Top View") +
