@@ -37,11 +37,11 @@ plot_performance <- function(confmat,
                facet.by = "variable", 
                label = "value",
                panel.labs = mylables,
-               font.label = list(color = "white", size = 10,
+               font.label = list(color = "white", size = 14,
                                  face = "bold",
                                  vjust = 0.5),
-               dot.size = 10, 
-               add.params = list("size" = 2.5, 
+               dot.size = 13, 
+               add.params = list("size" = 3.25, 
                                  "color" = "gray40")) + 
     scale_y_continuous(breaks = c(0, 25, 50, 70, 80, 90, 100), 
                        limits = c(0, 105)) +
@@ -49,15 +49,16 @@ plot_performance <- function(confmat,
     ggtitle(str_glue("Overall Accuracy: {accuracy} %")) +
     theme_pubclean() +
     theme(plot.title = element_text(hjust = 0.5, face = "bold"),
-          axis.title = element_text(face = "bold"),
-          legend.title = element_text(face = "bold"),
-          legend.text = element_text(size = 12, face = "bold"),
+          axis.title = element_text(face = "bold", size = 14),
+          legend.title = element_blank(),
+          legend.text = element_text(size = 14, face = "bold"),
           strip.background = element_blank(),
           legend.key = element_blank(),
           strip.text = element_text(face = "bold", size = 14),
+          axis.text.y = element_text(size = 14),
           axis.text.x = element_text(angle = 45, hjust = h,
                                      vjust = v, face = "bold",
-                                     size = 11)) +
+                                     size = 13)) +
     guides(label = guide_legend(override.aes=list(label=NA)))
   return(p)  
 }
@@ -95,7 +96,7 @@ csum = data.frame(pred = preds,
 conf_plot = plot_performance(confmat = conf_mat_rf, 
                              classSummary = csum) 
 plot_path = "modelImages/plots/fig3_predictive_performance.jpeg"
-ggsave(plot_path, conf_plot, width = 12, height = 5)
+ggsave(plot_path, conf_plot, width = 12, height = 5.5)
 
 
 # Confusion Matrix heatmap
