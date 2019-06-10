@@ -52,3 +52,4 @@ docs
 # other stuff
 modelImages/plots_old/
 application/other_images
+*.zip
