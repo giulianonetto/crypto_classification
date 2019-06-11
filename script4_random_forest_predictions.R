@@ -31,7 +31,11 @@ plot_performance <- function(confmat,
   p = confmat$byClass %>% as.data.frame() %>%
     dplyr::select(to_include) %>%
     mutate(Type = str_extract(rownames(.), "[a-z]+$")) %>%
-    melt() %>% mutate(value = round(value * 100)) %>%
+    melt() %>% 
+    mutate(value = round(value * 100),
+           Type = factor(Type, levels = c("bald", "regular",
+                                          "spiky", "artifact",
+                                          "unidentified"))) %>%
     ggdotchart("Type", "value", fill = "Type",
                color = "Type", add = "segments",
                facet.by = "variable", 
@@ -47,19 +51,21 @@ plot_performance <- function(confmat,
                        limits = c(0, 105)) +
     labs(x = NULL, y = "Test Performance (%)") +
     ggtitle(str_glue("Overall Accuracy: {accuracy} %")) +
-    theme_pubclean() +
-    theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+    theme_gray() +
+    scale_color_manual(values = brewer.pal(5, "Set1")[c(1,3,2,4,5)]) +
+    theme(plot.title = element_text(hjust = 0, face = "bold"),
+          panel.grid = element_blank(),
           axis.title = element_text(face = "bold", size = 14),
           legend.title = element_blank(),
           legend.text = element_text(size = 14, face = "bold"),
-          strip.background = element_blank(),
           legend.key = element_blank(),
           strip.text = element_text(face = "bold", size = 14),
           axis.text.y = element_text(size = 14),
           axis.text.x = element_text(angle = 45, hjust = h,
                                      vjust = v, face = "bold",
                                      size = 13)) +
-    guides(label = guide_legend(override.aes=list(label=NA)))
+    guides(label = guide_legend(override.aes=list(label=NA)),
+           colour = guide_legend(override.aes = list(size=5)))
   return(p)  
 }
 
@@ -96,7 +102,7 @@ csum = data.frame(pred = preds,
 conf_plot = plot_performance(confmat = conf_mat_rf, 
                              classSummary = csum) 
 plot_path = "modelImages/plots/fig3_predictive_performance.jpeg"
-ggsave(plot_path, conf_plot, width = 12, height = 5.5)
+ggsave(plot_path, conf_plot, width = 12, height = 4.5)
 
 
 # Confusion Matrix heatmap
@@ -181,8 +187,8 @@ locations = data.frame(x = df_bkp$x.0.m.cx, y = df_bkp$x.0.m.cy,
   mutate(predictions = preds, hits = hits)
 
 # example
-hit = "gray80"
-error = "#FF0A0A"
+hit = "#030303"
+error = "#C90000"
 
 for (i in filelist) {
   img_id = i$img
@@ -201,19 +207,25 @@ for (i in filelist) {
                        str_glue("{subset_loc$predictions} ({subset_loc$Type})"))
   {
     jpeg(str_glue("{files_path}/Img_{img_numb}_predictions.jpeg"),
-        res = 300, width = 1024, height = 724)
+         res = 1000, width = 1024, height = 724, bg = "white")
     display(paintObjects(big.list[[img_numb]]$cells[,,1],
                          EBImage::toRGB(big.list[[img_numb]]$img[,,1]), thick = T,
                          col = "green4"),
             method = "raster",
             margin = c(50,50))
+    # points(x = subset_loc$x, y = subset_loc$y, pch=ifelse(subset_loc$hits, 21, 4),
+    #        col = ifelse(subset_loc$hits, hit, error))
     segments(x0 = subset_loc$x, x1 = subset_loc$x,
-             y0 = subset_loc$y - 5, y1 = subset_loc$y - 29, lwd = 1.5,
+             y0 = subset_loc$y - 5, y1 = subset_loc$y - 29, lwd = .60,
              col = ifelse(subset_loc$hits, hit, error))
     text(x = subset_loc$x, y = subset_loc$y - 40,
          labels = text_labels,
          col = ifelse(subset_loc$hits, hit, error),
-         cex = 0.42, font = 2)
+         cex = 0.15, font = 2)
+    # boxtext(x = subset_loc$x, y = subset_loc$y - 40, 
+    #         labels = text_labels, cex = 0.5,
+    #         col.text = ifelse(subset_loc$hits, hit, error),
+    #         col.bg = "#b2f4f4c0", pos = 1)
     dev.off()
   }
 }
