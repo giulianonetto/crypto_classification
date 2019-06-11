@@ -29,7 +29,7 @@ filepath = "modelImages/plots/fig6_heatmap_probabilities.jpeg"
 h = heatmaply(df,
               showticklabels = c(T, F), 
               width = 700, height = 750, fontsize_col = 14)
-orca(h, file = filepath, scale = 2, width = 700, height = 750)
+orca(h, file = filepath, scale = 10, width = 700, height = 750)
 htmlwidgets::saveWidget(h,"heatmap_probabilities.html")
 system("mv heatmap_probabilities.html modelImages/plots")
 
