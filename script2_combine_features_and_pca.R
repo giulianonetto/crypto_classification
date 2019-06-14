@@ -4,6 +4,8 @@ suppressPackageStartupMessages({
     library(ggfortify)
     library(ggpubr)
     library(EBImage)
+    library(Rtsne)
+    library(vegan)
   })
 })
 
@@ -117,3 +119,40 @@ distance_matrix = dist(df[df$Type %in% cell_types, -c(1,2, ncol(df))])
 metadata = data.frame("Type" = df[df$Type %in% cell_types, "Type"])
 permanova = vegan::adonis(distance_matrix ~ Type, data = metadata)
 saveRDS(permanova, "permanova_test.RDS")
+
+# t-sne
+
+dat = df[, -c(1,ncol(df))]
+
+set.seed(9)  
+tsne = Rtsne(as.matrix(dat), check_duplicates = FALSE, 
+             max_iter = 1000,
+             pca = TRUE, perplexity = 200, theta=.5, 
+             dims=3, num_threads = 0)
+
+## getting the two dimension matrix
+tsne.axis = as.data.frame(tsne$Y)
+tsne.axis$type = df$Type
+p1p2=ggplot(tsne.axis, aes(V1, V2, color = type)) +
+  geom_point(size=3, alpha=.4)+
+  stat_ellipse(aes(group=type),level = .5, size =2)
+p1p3=ggplot(tsne.axis, aes(V1, V3, color = type)) +
+  geom_point(size=3)+
+  stat_ellipse(level = .5, size = 2)
+ggarrange(p1p2,p1p3, ncol=2, common.legend = T)
+
+# mds
+
+dist.dat = dist(dat, method = "minkowski")
+mds = cmdscale(dist.dat, k = 3)
+mds.dat = data.frame(mds, type = df$Type)
+
+p1p2=ggplot(mds.dat, aes(X1, X2, color = type)) +
+  geom_point(size=3)
+p1p3=ggplot(mds.dat, aes(X1, X3, color = type)) +
+  geom_point(size=3)
+ggarrange(p1p2,p1p3, ncol=2, common.legend = T)
+
+
+
+
