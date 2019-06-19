@@ -1,4 +1,4 @@
-# Automated machine learning pipeline predicts Cryptococcus gattii morphotypes in Electron Microscopy images
+# Automated machine learning pipeline predicts capsular morphotypes in scanning electron microscopy images of the human pathogen _Cryptococcus_ spp.
 
 Code and data for paper describing ML-based classification of Cryptococcus gattii cell images.
 
