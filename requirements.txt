@@ -7,3 +7,7 @@ ggfortify
 ggpubr
 reshape2
 tidyverse
+Rtsne
+vegan
+randomForest
+heatmaply
