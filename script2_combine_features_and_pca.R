@@ -57,8 +57,8 @@ df <- df %>%
   filter(Type != "ghost") %>%
   mutate(Type = factor(as.character(Type),
                        levels = c("bald",
-                                  "regular",
                                   "spiky",
+                                  "regular",
                                   "artifact",
                                   "unidentified")))
 df$Type = droplevels(df$Type, "ghost")
@@ -74,7 +74,8 @@ write.table(df,
 
 print(str_glue("Plotting Principal Component Analysis..."))
 
-pca = prcomp(df[, -c(1,2, ncol(df))], scale = T)
+
+pca = prcomp(df[, -c(1,ncol(df))], scale = T)
 
 p1 = ggplot2::autoplot(pca, data = df, 
                        colour = "Type", size = 3) +
@@ -100,7 +101,7 @@ p2 = ggplot2::autoplot(pca,x = 1, y = 3, data = df,
   scale_color_brewer(type = "qual",palette = 6)
 
 pcaplot = ggarrange(p1, p2, ncol = 2, 
-                    common.legend = T, legend = "top")
+                    common.legend = T, legend = "right")
 plots_dir = "modelImages/plots"
 if (!dir.exists(plots_dir)) {
   dir.create(plots_dir)
