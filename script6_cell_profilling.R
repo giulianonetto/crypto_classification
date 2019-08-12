@@ -3,6 +3,7 @@ suppressPackageStartupMessages({
     library(tidyverse)
     library(ggpubr)
     library(heatmaply)
+    library(pheatmap)
   })
 })
 
@@ -57,70 +58,129 @@ my.comparisons = list(
   c("bald", "ghost")
 )
 
-my_theme = list(
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        axis.title.y = element_text(face = 'bold'),
-        strip.text = element_text(face = "bold", size = 12),
-        legend.key.size = unit(1, 'cm'),
-        legend.text = element_text(face = "bold", size= 12))
-)
 # shape features
-shape.features = c("x.0.s.area" = "Area", 
-                   "x.0.s.radius.mean" = "Mean Radius")
-df %>%
-  filter(feature %in% names(shape.features)) %>%
-  mutate(feature = factor(shape.features[as.character(feature)])) %>%
-  group_by(feature) %>%
-  mutate(value = 100*value/max(value)) %>%
-  ungroup %>%
-  ggplot(aes(cell.type, value, color = cell.type)) +
-  facet_wrap(~feature) +
-  geom_jitter(alpha=.5) +
-  geom_boxplot(color = 'gray20', alpha = 0) +
-  stat_compare_means(method = "wilcox.test", hide.ns = TRUE,
-                     comparisons = my.comparisons,tip.length = .01,
-                     position = position_nudge(y=-.5),label = "p.signif") +
-  stat_compare_means(position = position_nudge(y = .75)) +
-  scale_y_log10(breaks = c(5, 10, 25, 50, 100)) +
-  coord_cartesian(ylim = c(2.5,1000)) +
-  labs(y = "% of maximum value", x = NULL, color = NULL) +
-  my_theme
+.features = c(
+  "x.0.s.radius.mean" = "Radius Mean", # shape
+  "h.con.s1" = "Contrast", "h.con.s2" = "Contrast", # texture
+  "x.0.m.majoraxis" = "Major Axis",  # moment
+  "x.a.m.majoraxis" = "Major Axis",  # moment
+  "x.Ba.m.majoraxis" = "Major Axis", # moment
+  "x.a.b.mean" = "Mean Pixel Intensity" # basic
+)
 
+dat <- df %>%
+  filter(feature %in% names(.features)) %>%
+  group_by(Cell.id, feature.type) %>%
+  mutate(.value = mean(value),
+         .feature = .features[feature]) %>%
+  ungroup %>% 
+  select(Cell.id, cell.type, .value, .feature) %>%
+  unique()
 
-# haralick features
-halarick.features = c("h.sen" = "Sen", 
-                      "h.ent" = "Ent",
-                      "h.den" = "Den")
-my.comparisons2 = my.comparisons
-my.comparisons2[[3]] = c("regular", "ghost")
-df %>%
-  filter(feature.type=="Haralick") %>%
-  mutate(feature.prefix = str_extract(feature, "h\\.\\w+")) %>%
-  group_by(feature.prefix, Cell.id) %>%
-  mutate(value = mean(value)) %>%
-  ungroup %>%
-  filter(feature.prefix %in% names(halarick.features)) %>%
-  mutate(feature = factor(halarick.features[as.character(feature.prefix)])) %>%
-  group_by(feature) %>%
-  mutate(value = 100*value/max(value)) %>%
-  ungroup %>%
-  ggplot(aes(cell.type, value, color = cell.type)) +
-  facet_wrap(~feature) +
-  geom_jitter(alpha=.5) +
-  geom_boxplot(color='gray20', alpha = 0) +
-  stat_compare_means(method = "wilcox.test", hide.ns = TRUE,
-                     comparisons = my.comparisons2,
-                     tip.length = .01, label = "p.signif",
-                     position = position_nudge(y=-.5),
-                     show.legend = FALSE) +
-  stat_compare_means(position = position_nudge(y = 25),
-                     show.legend = FALSE) +
-  # scale_y_log10(breaks = c(50, 60, 70, 80, 90, 100)) +
-  scale_y_continuous(breaks = c(50, 60, 70, 80, 90, 100)) +
-  coord_cartesian(ylim = c(50,130)) +
-  labs(y = "% of maximum value", x = NULL, color = NULL) +
-  guides(color = guide_legend(override.aes = list(alpha = 1,
-                                                  size = 2))) +
-  my_theme
+make_plot <- function(.dat, .pars) {
+  .dat %>%
+    ggplot(aes(cell.type, .value)) +
+    geom_jitter(aes(color = cell.type), alpha = .75,
+                height = 0, width = .35) +
+    stat_summary(geom = 'line', fun.y = mean,
+                 color = 'red', size = 1.25,
+                 aes(group = .feature)) +
+    .pars
+}
 
+.features = unique(.features)
+names(.features) = .features
+annot.positions = c(
+  "Major Axis" = 250,
+  "Contrast" = 80,
+  "Mean Pixel Intensity" = 0.8,
+  "Radius Mean" = 100
+)
+plt.list <- map(.features, function(.feat) {
+  df = dat %>% filter(.feature == .feat)
+  .ylims = c(min(df$.value)*.5, max(df$.value)*1.5)
+  .pars = list(
+    stat_compare_means(label.y = annot.positions[.feat]),
+    stat_compare_means(comparisons = my.comparisons,
+                       tip.length = .02,
+                       label = 'p.signif'),
+    ylim(.ylims),
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title.y = element_text(face = 'bold'),
+          plot.title = element_text(face = "bold", size = 14),
+          legend.key.size = unit(1, 'cm'),
+          legend.text = element_text(face = "bold", size= 12)),
+    labs(x=NULL, y=NULL, color=NULL),
+    ggtitle(.feat)
+  )
+  p <- make_plot(.dat = df, .pars = .pars)
+  return(p)
+})
+
+.feat_plot <- ggarrange(plotlist = plt.list, ncol = 2, nrow = 2,
+                        legend = 'right', common.legend = TRUE)
+ggsave('modelImages/features_plot.png',.feat_plot,
+       width = 10, height = 6)
 # heatmap with z-scores from wuantile regression or something 
+
+all.features = df$feature %>% unique()
+# remove translation and rotation variant features
+ix = !str_detect(all.features,"c[xy]|theta") 
+all.features = all.features[ix]
+names(all.features) = all.features
+
+model.data <- map(all.features, function(.feat) {
+  .df = df %>%
+    filter(feature == .feat) %>%
+    select(Cell.id, feature, value, cell.type) %>%
+    spread(feature, value)
+  fit = MASS::rlm(rlang::eval_tidy(as.name(.feat)) ~ cell.type,
+                  data = .df)
+  .coefs = coef(fit)
+  pvals = sapply(names(.coefs), function(i) {
+    sfsmisc::f.robftest(fit, var = i)$p.value
+                        })
+  estimates = .coefs
+  estimates[2:4] = sapply(estimates[2:4], 
+                          function(i) estimates[1] + i )
+  
+  coefs_to_cells = c("regular", "spiky", "bald", "phantom")
+  names(coefs_to_cells) = names(.coefs)
+  
+  out.df = data.frame(
+    "estimates" = estimates,
+    ".coefs" = .coefs,
+    "p.value" = pvals,
+    "cell.type" = coefs_to_cells[names(.coefs)]
+  )
+  return(out.df)
+}) 
+
+model.data <- model.data %>% plyr::ldply(rbind) %>%
+  mutate(p.value = p.adjust(p.value, method = "BH")) %>%
+  mutate(corrected_estimates = {
+    ifelse(p.value <= 0.05, estimates, estimates - .coefs)
+    })
+  
+hm.data = model.data %>%
+  filter(.id!="x.Ba.b.q05") %>% # same for all cell types, breaks scaling
+  select(.id, cell.type, corrected_estimates) %>%
+  spread(cell.type, corrected_estimates)
+
+
+rownames(hm.data) = hm.data$.id
+df = df %>% select(feature, feature.type) %>% unique()
+rownames(df) = df$feature
+.feat_types = df[hm.data$.id, "feature.type"] %>%
+  data.frame(row.names = rownames(hm.data))
+hm.data$.id = NULL
+h.plot = pheatmap(hm.data, annotation_row = .feat_types, scale = "row")
+
+save_pheatmap_png <- function(x, filename, width=2800, height=2500, res = 300) {
+  png(filename, width = width, height = height, res = res)
+  grid::grid.newpage()
+  grid::grid.draw(x$gtable)
+  dev.off()
+}
+
+save_pheatmap_png(h.plot, "modelImages/heatmap.png")

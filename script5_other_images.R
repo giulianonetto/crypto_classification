@@ -89,7 +89,7 @@ top_5_features = rev(levels(imp_df$feature))[1:5] %>%
   str_replace("top hat - ", "x.Ba.")
 
 top_5_feat_cor_plot = GGally::ggpairs(trainset, 
-                                      columns = top_10_features,
+                                      columns = top_5_features,
                                       mapping = aes(colour = Type,
                                                     alpha = .5)) +
   theme(strip.text = element_text(face = "bold", size = 12))

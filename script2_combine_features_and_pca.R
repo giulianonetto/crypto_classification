@@ -51,17 +51,17 @@ props =  EBImage::computeFeatures(big.list[[1]]$cells[,,1],
                                   big.list[[1]]$img[,,1],
                                   properties = TRUE)
 to.remove <- props[!(props$translation.invariant & props$rotation.invariant),
-                   "name"]
+                   "name"] %>% as.character()
+df$Type <- plyr::revalue(df$Type,c("ghost" = "phantom"))
 df <- df %>% 
   select(-to.remove) %>%
-  filter(Type != "ghost") %>%
   mutate(Type = factor(as.character(Type),
                        levels = c("bald",
                                   "spiky",
                                   "regular",
+                                  "phantom",
                                   "artifact",
                                   "unidentified")))
-df$Type = droplevels(df$Type, "ghost")
 
 
 # Store table with features from all labeled cells / images
@@ -77,7 +77,7 @@ print(str_glue("Plotting Principal Component Analysis..."))
 
 pca = prcomp(df[, -c(1,ncol(df))], scale = T)
 
-p1 = ggplot2::autoplot(pca, data = df, 
+p1 = ggplot2::autoplot(pca, data = df, alpha = .95,
                        colour = "Type", size = 3) +
   theme(plot.title = element_text(hjust = 0.475, face = "bold"),
         text = element_text(size = 18),
@@ -90,7 +90,7 @@ p1 = ggplot2::autoplot(pca, data = df,
   scale_color_brewer(type = "qual",palette = 6)
 
 p2 = ggplot2::autoplot(pca,x = 1, y = 3, data = df,
-                       colour = "Type", size = 3) +
+                       colour = "Type", size = 3, alpha = .95) +
   theme(plot.title = element_text(hjust = 0.475, face = "bold"),
         text = element_text(size = 18),
         axis.title = element_text(face = "bold"),
@@ -135,11 +135,9 @@ tsne = Rtsne(as.matrix(dat), check_duplicates = FALSE,
 tsne.axis = as.data.frame(tsne$Y)
 tsne.axis$type = df$Type
 p1p2=ggplot(tsne.axis, aes(V1, V2, color = type)) +
-  geom_point(size=3, alpha=.4)+
-  stat_ellipse(aes(group=type),level = .5, size =2)
+  geom_point(size=3, alpha=.4)
 p1p3=ggplot(tsne.axis, aes(V1, V3, color = type)) +
-  geom_point(size=3)+
-  stat_ellipse(level = .5, size = 2)
+  geom_point(size=3)
 ggarrange(p1p2,p1p3, ncol=2, common.legend = T)
 
 # mds

@@ -16,6 +16,12 @@ print(str_glue("Loading and preprocessing initial data"))
 
 df = read.csv("features_all_labeled.tsv", 
               sep = "\t", header = TRUE, stringsAsFactors = FALSE)
+# drop phantom cell type: too low N!!
+# ----- #
+df <- df %>%
+  filter(Type != "phantom")
+# ----- #
+
 set.seed(829)
 split <- sample.split(df$Type, SplitRatio = 0.75)
 trainset = df[split,]
@@ -45,13 +51,12 @@ write.table(testset,
 # Model tuning
 rf_ctrl = trainControl(method = "repeatedcv",
 		       number = 10,
-                       ## repeated ten times
-                       repeats = 5,
+		       repeats = 5,
 		       classProbs = TRUE,
                        savePredictions = TRUE,
                        summaryFunction = multiClassSummary)
-rf_grid = expand.grid(minNode = c(1:10),
-                      predFixed = c(4:20))
+rf_grid = expand.grid(minNode = c(3:9),
+                      predFixed = c(4:15))
 
 print(str_glue("Tuning Random Forest classifier parameters - this may take awhile..."))
 
@@ -63,7 +68,7 @@ if (!file.exists("tuning_fit_random_forest.RDS")) {
                         tuneGrid = rf_grid,
                         trControl = rf_ctrl,
                         nTree = 2000,
-                        nthread = 4)
+                        nthread = 6)
   saveRDS(fit_rf, "tuning_fit_random_forest.RDS")
 } else {
   fit_rf = readRDS("tuning_fit_random_forest.RDS")
@@ -86,8 +91,8 @@ tuning_plot_rf = ggplot(fit_rf, highlight = TRUE) +
         axis.title = element_text(face = "bold"),
         legend.title = element_text(hjust = 0, face = "bold")) +
   labs(color = "Minimum\nNode Size", shape = "Minimum\nNode Size") +
-  scale_shape_manual(values = 1:10) + 
-  scale_color_manual(values = 1:10) +
+  scale_shape_manual(values = 1:7) + 
+  scale_color_manual(values = 1:7) +
   labs(y = "Accuracy (Repeated CV)")
 
 # update plot's scale and annotations
@@ -99,7 +104,7 @@ plot_text = str_glue("{best_minNode} Nodes Minimum
                      Highest Training Accuracy = {big} %")
 tuning_plot_rf$labels$y = str_glue("{tuning_plot_rf$labels$y} %")
 tuning_plot_rf = tuning_plot_rf + 
-  ylim(small, big*1.006) +
+  ylim(small, big*1.007) +
   geom_hline(yintercept = big, linetype = "longdash", color = "gray40") +
   annotate("text", x = 10, y = big * 1.0025, hjust = 0,
            fontface = "bold", color = "gray10",

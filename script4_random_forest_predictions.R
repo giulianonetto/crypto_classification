@@ -5,6 +5,7 @@ suppressPackageStartupMessages({
     library(ggpubr)
     library(reshape2)
     library(EBImage)
+    library(RColorBrewer)
   })
 })
 # define functions
