@@ -53,3 +53,4 @@ docs
 modelImages/plots_old/
 application/other_images
 *.zip
+.bkp
