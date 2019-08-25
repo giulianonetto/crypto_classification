@@ -76,7 +76,12 @@ print(str_glue("Plotting Principal Component Analysis..."))
 
 
 pca = prcomp(df[, -c(1,ncol(df))], scale = T)
-
+mypal = c('#e41a1c',
+          '#377eb8',
+          '#4daf4a',
+          '#984ea3',
+          '#ff7f00',
+          '#525252')
 p1 = ggplot2::autoplot(pca, data = df, alpha = .95,
                        colour = "Type", size = 3) +
   theme(plot.title = element_text(hjust = 0.475, face = "bold"),
@@ -87,7 +92,7 @@ p1 = ggplot2::autoplot(pca, data = df, alpha = .95,
                                     face = "bold")) +
   labs(color = NULL) +
   ggtitle("Front View") +
-  scale_color_brewer(type = "qual",palette = 6)
+  scale_color_manual(values = mypal)
 
 p2 = ggplot2::autoplot(pca,x = 1, y = 3, data = df,
                        colour = "Type", size = 3, alpha = .95) +
@@ -98,7 +103,7 @@ p2 = ggplot2::autoplot(pca,x = 1, y = 3, data = df,
         legend.title = element_text(hjust = 0, face = "bold")) +
   labs(color = NULL) +
   ggtitle("Top View") +
-  scale_color_brewer(type = "qual",palette = 6)
+  scale_color_manual(values = mypal)
 
 pcaplot = ggarrange(p1, p2, ncol = 2, 
                     common.legend = T, legend = "right")

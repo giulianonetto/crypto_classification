@@ -48,14 +48,15 @@ df = map(filelist, function(img) {
                           "b" = "Basic",
                           "h" = "Haralick")[feature.type],
          cell.type = factor(as.character(Type), 
-                            levels = c('regular', 'spiky', 'bald', 'ghost'))) %>%
+                            levels = c('bald', 'spiky', 'regular', 'ghost'),
+                            labels = c('bald', 'spiky', 'regular', 'phantom'))) %>%
   select(-Type)
 
 
 my.comparisons = list(
   c("regular", "spiky"),
   c("spiky", "bald"),
-  c("bald", "ghost")
+  c("regular", "phantom")
 )
 
 # shape features
@@ -111,7 +112,8 @@ plt.list <- map(.features, function(.feat) {
           legend.key.size = unit(1, 'cm'),
           legend.text = element_text(face = "bold", size= 12)),
     labs(x=NULL, y=NULL, color=NULL),
-    ggtitle(.feat)
+    ggtitle(.feat),
+    scale_color_brewer(type = "qual",palette = 6)
   )
   p <- make_plot(.dat = df, .pars = .pars)
   return(p)
@@ -119,7 +121,7 @@ plt.list <- map(.features, function(.feat) {
 
 .feat_plot <- ggarrange(plotlist = plt.list, ncol = 2, nrow = 2,
                         legend = 'right', common.legend = TRUE)
-ggsave('modelImages/features_plot.png',.feat_plot,
+ggsave('modelImages/plots/features_plot.png',.feat_plot,
        width = 10, height = 6)
 # heatmap with z-scores from wuantile regression or something 
 
@@ -174,13 +176,16 @@ rownames(df) = df$feature
 .feat_types = df[hm.data$.id, "feature.type"] %>%
   data.frame(row.names = rownames(hm.data))
 hm.data$.id = NULL
-h.plot = pheatmap(hm.data, annotation_row = .feat_types, scale = "row")
 
-save_pheatmap_png <- function(x, filename, width=2800, height=2500, res = 300) {
-  png(filename, width = width, height = height, res = res)
-  grid::grid.newpage()
-  grid::grid.draw(x$gtable)
-  dev.off()
-}
+dat <- cbind(hm.data, .feat_types)
 
-save_pheatmap_png(h.plot, "modelImages/heatmap.png")
+dat <- dat[order(dat$.), ]
+h.plot = pheatmap(dat[,-5], 
+                  annotation_row = data.frame("Type" = dat[,5],
+                                              row.names = rownames(dat)),
+                  scale = "row", cluster_rows = FALSE,
+                  height = 9,
+                  angle_col = 45,
+                  filename =  "modelImages/plots/heatmap.png")
+
+
