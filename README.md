@@ -1,6 +1,8 @@
-# Automated machine learning pipeline predicts capsular morphotypes in scanning electron microscopy images of the human pathogen _Cryptococcus_ spp.
+# Scanning electron microscopy and machine learning reveal heterogeneity in capsular morphotypes of the human pathogen _Cryptococcus_ spp.
 
 Code and data for paper describing ML-based classification of Cryptococcus gattii cell images.
+
+paper: https://doi.org/10.1038/s41598-020-59276-w
 
 * __Script 1__ (script1_segmation_and_feature_extraction.R): reads in the image files, processes each file, performs cell segmentation, and extracts many features for each cell (as described [here](https://www.bioconductor.org/packages/devel/bioc/manuals/EBImage/man/EBImage.pdf) for the computeFeatures() function from the EBImage package available from Baicondutor). It takes about one minute using 3 threads (8GB RAM notebook).
 
